@@ -1,9 +1,30 @@
 const Book = require('../models/book');
 const fs = require('fs');
+const sharp = require('sharp');
+
 
 exports.createRatingBook = (req, res, next) =>{
-    console.log(req.params.ratings)
-    res.status(201).json({message: "Ok"})
+    if (req.body.rating < 0 || req.body.rating > 5) {
+        res.status(401).json({message: 'La note doit être comprise entre 0 et 5'});
+    };
+
+    Book.findOne({_id: req.params.id})
+        .then((book) => {
+            const bookRating = book.ratings;
+            if ( bookRating.find((rating) => rating.userId === req.auth.userId)) {
+                res.status(401).json({message: 'Vous avez déjà noté ce livre'});
+            } else {
+                bookRating.push({
+                    userId: req.auth.userId,
+                    grade: req.body.rating
+                });
+                console.log(bookRating)
+                book.save()
+                    .then(() => res.status(200).json(book))
+                    .catch(error => res.status(400).json({ error }));
+            };
+        })
+        .catch(error => res.status(404).json({ error }));
 };
 
 exports.deleteBook = (req, res, next) => {
@@ -48,19 +69,35 @@ exports.modifyBook = (req, res, next) => {
 };
 
 exports.createBook = (req, res, next) => {
-    const bookObject = JSON.parse(req.body.book);
-    delete bookObject._id;
-    delete bookObject._userId;
+    fs.access('./images', (error) => {
+        if (error) {
+            fs.mkdirSync('./images');
+        }
 
-    const book = new Book({
-        ...bookObject,
-        userId: req.auth.userId,
-        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-    });
+        const { buffer, originalname } = req.file;
+        const timestamp = Date.now();
+        const ref = `${timestamp}-${originalname}.webp`;
 
-    book.save()
-        .then(() => res.status(201). json({ message: 'Livre ajouté avec succès'}))
-        .catch(error => res.status(400).json({ error }));
+        sharp(buffer)
+            .webp({quality: 80})
+            .toFile('./images/' + ref)
+            .then(() => {
+                const bookObject = JSON.parse(req.body.book);
+                delete bookObject._id;
+                delete bookObject._userId;
+            
+                const book = new Book({
+                    ...bookObject,
+                    userId: req.auth.userId,
+                    imageUrl: `${req.protocol}://${req.get('host')}/images/${ref}`
+                });
+            
+                book.save()
+                    .then(() => res.status(201).json({ message: 'Livre ajouté avec succès'}))
+                    .catch(error => res.status(400).json({ error }));
+            })
+            .catch(error => res.status(500).json({error}));
+    })
 };
 
 exports.getBestRatingBook = (req, res,next) => {
@@ -69,7 +106,7 @@ exports.getBestRatingBook = (req, res,next) => {
 
 exports.getOneBook = (req, res, next) => {
     Book.findOne({_id: req.params.id})
-        .then(thing => res.status(200).json(thing))
+        .then(book => res.status(200).json(book))
         .catch(error => res.status(404).json({ error }));
 };
 
