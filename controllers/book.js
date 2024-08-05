@@ -108,11 +108,8 @@ exports.createBook = (req, res, next) => {
 exports.getBestRatingBook = (req, res,next) => {
     Book.find()
         .then((books) => {
-            // const bestAverageRating = books.averageRating;
-            // bestAverageRating.sort((a, b) => b - a);
-            // bestAverageRating.slice(0,3)
-            // console.log(books.averageRating)
-            res.status(200).json(books)
+            const bestAverageRating = books.sort((a, b) => b.averageRating - a.averageRating).slice(0,3);
+            res.status(200).json(bestAverageRating);
         })
         .catch(error => res.status(400).json({ error }));
 };
