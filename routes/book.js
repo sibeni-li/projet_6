@@ -1,11 +1,12 @@
+// Imports
 const express = require('express');
 const auth = require('../middleware/auth');
 const multer = require('../middleware/multer-config');
 const sharp = require('../middleware/sharp-config')
+const bookCtrl = require('../controllers/book');
 const router = express.Router();
 
-const bookCtrl = require('../controllers/book');
-
+// Define routes for book operations
 router.post('/:id/rating', auth, bookCtrl.createRatingBook);
 router.delete('/:id', auth, bookCtrl.deleteBook); 
 router.put('/:id', auth, multer, sharp, bookCtrl.modifyBook); 
