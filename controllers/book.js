@@ -18,7 +18,12 @@ exports.createRatingBook = (req, res, next) =>{
                     userId: req.auth.userId,
                     grade: req.body.rating
                 });
+
+                const averageRating = bookRating.reduce((acc, currentValue) => acc + currentValue.grade, 0);
+                book.averageRating = averageRating / bookRating.length
                 console.log(bookRating)
+                console.log(book.averageRating)
+
                 book.save()
                     .then(() => res.status(200).json(book))
                     .catch(error => res.status(400).json({ error }));
@@ -101,7 +106,15 @@ exports.createBook = (req, res, next) => {
 };
 
 exports.getBestRatingBook = (req, res,next) => {
-
+    Book.find()
+        .then((books) => {
+            // const bestAverageRating = books.averageRating;
+            // bestAverageRating.sort((a, b) => b - a);
+            // bestAverageRating.slice(0,3)
+            // console.log(books.averageRating)
+            res.status(200).json(books)
+        })
+        .catch(error => res.status(400).json({ error }));
 };
 
 exports.getOneBook = (req, res, next) => {
