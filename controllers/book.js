@@ -1,7 +1,6 @@
 const Book = require('../models/book');
 const fs = require('fs');
-const sharp = require('sharp');
-
+const sharpConfig = require('../middleware/sharp-config')
 
 exports.createRatingBook = (req, res, next) =>{
     if (req.body.rating < 0 || req.body.rating > 5) {
@@ -20,9 +19,7 @@ exports.createRatingBook = (req, res, next) =>{
                 });
 
                 const averageRating = bookRating.reduce((acc, currentValue) => acc + currentValue.grade, 0);
-                book.averageRating = averageRating / bookRating.length
-                console.log(bookRating)
-                console.log(book.averageRating)
+                book.averageRating = averageRating / bookRating.length;
 
                 book.save()
                     .then(() => res.status(200).json(book))
@@ -74,35 +71,21 @@ exports.modifyBook = (req, res, next) => {
 };
 
 exports.createBook = (req, res, next) => {
-    fs.access('./images', (error) => {
-        if (error) {
-            fs.mkdirSync('./images');
-        }
-
-        const { buffer, originalname } = req.file;
-        const timestamp = Date.now();
-        const ref = `${timestamp}-${originalname}.webp`;
-
-        sharp(buffer)
-            .webp({quality: 80})
-            .toFile('./images/' + ref)
-            .then(() => {
-                const bookObject = JSON.parse(req.body.book);
-                delete bookObject._id;
-                delete bookObject._userId;
-            
-                const book = new Book({
-                    ...bookObject,
-                    userId: req.auth.userId,
-                    imageUrl: `${req.protocol}://${req.get('host')}/images/${ref}`
-                });
-            
-                book.save()
-                    .then(() => res.status(201).json({ message: 'Livre ajouté avec succès'}))
-                    .catch(error => res.status(400).json({ error }));
-            })
-            .catch(error => res.status(500).json({error}));
-    })
+        const bookObject = JSON.parse(req.body.book);
+        delete bookObject._id;
+        delete bookObject._userId;
+    
+        const book = new Book({
+            ...bookObject,
+            userId: req.auth.userId,
+            imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+            ratings: [],
+            averageRating: 0
+        });
+    
+        book.save()
+            .then(() => res.status(201).json({ message: 'Livre ajouté avec succès'}))
+            .catch(error => res.status(400).json({ error }));
 };
 
 exports.getBestRatingBook = (req, res,next) => {
