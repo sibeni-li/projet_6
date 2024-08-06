@@ -5,18 +5,22 @@ const User = require('../models/user');
 
 // User signup
 exports.signup = (req, res, next) => {
-    // Hash password before saving
-    bcrypt.hash(req.body.password, 10)
-        .then(hash => {
-            const user = new User({
-                email: req.body.email,
-                password: hash
-            });
+    if (req.body.email && req.body.password) {
+        // Hash password before saving
+        bcrypt.hash(req.body.password, 10)
+            .then(hash => {
+                const user = new User({
+                    email: req.body.email,
+                    password: hash
+                });
             user.save()
                 .then(() => res.status(201).json({message: 'Utilisateur créé !'}))
                 .catch(error => res.status(400).json({error}));
-        })
-        .catch(error => res.status(500).json({error}));
+            })
+            .catch(error => res.status(500).json({error}));
+    } else {
+        res.status(400).json({message: 'Champs manquants'});
+    };    
 };
 
 // User login
