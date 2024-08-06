@@ -1,6 +1,7 @@
 // Imports
 const express = require('express');
 const mongoose = require('mongoose');
+const helmet = require('helmet');
 const bookRoutes = require('./routes/book');
 const userRoutes = require('./routes/user');
 const path = require('path');
@@ -13,10 +14,15 @@ mongoose.connect(`mongodb+srv://${process.env.BDDLOGIN}:${process.env.BDDPASSWOR
     {   useNewUrlParser: true,
         useUnifiedTopology: true })
     .then(() => console.log('Connexion à MongoDB réussie !'))
-    .catch(() => console.log('Connexion `MongoDB échouée !'));
+    .catch(() => console.log('Connexion à MongoDB échouée !'));
 
 // Middleware to parse JSON bodies
 app.use(express.json());
+
+// Use Helmet!
+app.use(helmet({
+    crossOriginResourcePolicy: false,
+  }));
 
 //CORS middleware
 app.use((req, res, next) => {
