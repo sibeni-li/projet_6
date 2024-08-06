@@ -17,5 +17,5 @@ module.exports = (req, res, next) => {
     } catch(error) {
         // If token is invalid or not present, send 401 Unauthorized
         res.status(401).json({ error });
-    }
+    };
 };
