@@ -4,6 +4,10 @@ const fs = require('fs');
 
 // Create a rating for a book
 exports.createRatingBook = (req, res, next) =>{
+    // Verify if it is a number
+    if (!Number.isInteger(req.body.rating)) {
+        res.status(401).json({message: 'La note doit être un nombre'});
+    };
     // Validate rating
     if (req.body.rating < 0 || req.body.rating > 5) {
         res.status(401).json({message: 'La note doit être comprise entre 0 et 5'});
@@ -60,33 +64,33 @@ exports.deleteBook = (req, res, next) => {
 exports.modifyBook = (req, res, next) => {
     
     Book.findOne({_id: req.params.id})
-    .then((book) => {
-        if (book.userId != req.auth.userId) {
-            res.status(401).json({ message : 'Non authorisé'});
-        } else {
-            // Handle book object with or without new file
-            let bookObject = {};
-            if ( req.file) {
-                const filename = book.imageUrl.split('/images/')[1];
-                fs.unlink(`images/${ filename }`, err => {
-                    if (err) console.log(err);
-                  });
-                console.log('toto')
-                bookObject = {
-                    ...JSON.parse(req.body.book),
-                    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
-                    userId: req.auth.userId
-                }
-            } else { 
-                bookObject = {...req.body,
-                userId: req.auth.userId
+        .then((book) => {
+            if (book.userId != req.auth.userId) {
+                res.status(401).json({ message : 'Non authorisé'});
+            } else {
+                // Handle book object with or without new file
+                let bookObject = {};
+                if ( req.file) {
+                    const filename = book.imageUrl.split('/images/')[1];
+                    fs.unlink(`images/${ filename }`, err => {
+                        if (err) console.log(err);
+                    });
+                    bookObject = {
+                        ...JSON.parse(req.body.book),
+                        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+                        userId: req.auth.userId
+                    }
+                } else { 
+                    bookObject = {
+                        ...req.body,
+                        userId: req.auth.userId
+                    };
                 };
-            };
                 // Update book
                 Book.updateOne({ _id: req.params.id}, { ...bookObject, _id: req.params.id})
-                .then(() => res.status(200).json({message : 'Livre modifié!'}))
-                .catch(error => res.status(401).json({ error }));
-            }
+                    .then(() => res.status(200).json({message : 'Livre modifié!'}))
+                    .catch(error => res.status(401).json({ error }));
+                }
         })
         .catch((error) => {
             res.status(400).json({ error });
@@ -95,21 +99,21 @@ exports.modifyBook = (req, res, next) => {
 
 // Create a new book
 exports.createBook = (req, res, next) => {
-        const bookObject = JSON.parse(req.body.book);
-        delete bookObject._id;
-        delete bookObject._userId;
+    const bookObject = JSON.parse(req.body.book);
+    delete bookObject._id;
+    delete bookObject._userId;
     
-        const book = new Book({
-            ...bookObject,
-            userId: req.auth.userId,
-            imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
-            ratings: [],
-            averageRating: 0
-        });
+    const book = new Book({
+        ...bookObject,
+        userId: req.auth.userId,
+        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+        ratings: [],
+        averageRating: 0
+    });
     
-        book.save()
-            .then(() => res.status(201).json({ message: 'Livre ajouté avec succès'}))
-            .catch(error => res.status(400).json({ error }));
+    book.save()
+        .then(() => res.status(201).json({ message: 'Livre ajouté avec succès'}))
+        .catch(error => res.status(400).json({ error }));
 };
 
 // Get top 3 rated books
