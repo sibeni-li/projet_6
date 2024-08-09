@@ -15,6 +15,9 @@ exports.createRatingBook = (req, res, next) =>{
 
     Book.findOne({_id: req.params.id})
         .then((book) => {
+            if (!book) {
+                return res.status(404).json({error});
+            };
             const bookRating = book.ratings;
             // Check if user has already rated the book
             if ( bookRating.find((rating) => rating.userId === req.auth.userId)) {
@@ -43,6 +46,9 @@ exports.createRatingBook = (req, res, next) =>{
 exports.deleteBook = (req, res, next) => {
     Book.findOne({_id: req.params.id})
         .then(book => {
+            if (!book) {
+                return res.status(404).json({error});
+            };
             if(book.userId != req.auth.userId) {
                 res.status(401).json({message: 'Non authorisé'});
             } else {
@@ -65,6 +71,9 @@ exports.modifyBook = (req, res, next) => {
     
     Book.findOne({_id: req.params.id})
         .then((book) => {
+            if (!book) {
+                return res.status(404).json({error});
+            };
             if (book.userId != req.auth.userId) {
                 res.status(401).json({ message : 'Non authorisé'});
             } else {
@@ -120,6 +129,9 @@ exports.createBook = (req, res, next) => {
 exports.getBestRatingBook = (req, res,next) => {
     Book.find()
         .then((books) => {
+            if (!books) {
+                return res.status(404).json({error});
+            };
             const bestAverageRating = books.sort((a, b) => b.averageRating - a.averageRating).slice(0,3);
             res.status(200).json(bestAverageRating);
         })
@@ -129,13 +141,21 @@ exports.getBestRatingBook = (req, res,next) => {
 // Get a single book
 exports.getOneBook = (req, res, next) => {
     Book.findOne({_id: req.params.id})
-        .then(book => res.status(200).json(book))
+        .then(book => {
+            if (!book) {
+                return res.status(404).json({error});
+            };
+            res.status(200).json(book)})
         .catch(error => res.status(404).json({ error }));
 };
 
 // Get all books
 exports.getAllBook = (req, res, next) => {
     Book.find()
-        .then(books => res.status(200).json(books))
+        .then(books => {
+            if (!books) {
+                return res.status(404).json({error});
+            };
+            res.status(200).json(books)})
         .catch(error => res.status(400).json({ error }));
 };
