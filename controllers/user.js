@@ -9,10 +9,12 @@ exports.signup = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
 
+    // Check if email and password are provided
     if (!email || !password) {
         return res.status(400).json({message: 'Champs manquants !'});
     };
 
+    // Validate email format
     if (!validator.isEmail(email)) {
         return res.status(400).json({ message: 'Format email invalide !' });
     };
@@ -20,10 +22,12 @@ exports.signup = (req, res, next) => {
     // Hash password before saving
     bcrypt.hash(password, 10)
         .then(hash => {
+            // Create new user with hashed password
             const user = new User({
                 email: email,
                 password: hash
             });
+        // Save user to database
         user.save()
             .then(() => res.status(201).json({message: 'Utilisateur créé !'}))
             .catch(error => res.status(400).json({error}));
@@ -36,14 +40,17 @@ exports.login = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
 
+    // Check if email and password are provided
     if (!email || !password) {
         return res.status(400).json({message: 'Champs manquants !'});
     };
 
+    // Validate email format
     if (!validator.isEmail(email)) {
         return res.status(400).json({ message: 'Format email invalide !' });
     };
     
+    // Find user by email
     User.findOne({email: email})
         .then(user => {
             if (!user) {

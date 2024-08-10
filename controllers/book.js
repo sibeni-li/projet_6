@@ -80,6 +80,7 @@ exports.modifyBook = (req, res, next) => {
                 // Handle book object with or without new file
                 let bookObject = {};
                 if ( req.file) {
+                    // Delete old image if new one is uploaded
                     const filename = book.imageUrl.split('/images/')[1];
                     fs.unlink(`images/${ filename }`, err => {
                         if (err) console.log(err);
