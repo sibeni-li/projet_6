@@ -13,7 +13,7 @@ This is the backend for "Mon Vieux Grimoir" website, built with Node.js, Express
 1. Go to your project directory and clone the repository: 
 
 ```bash
-git clone [https://github.com/sibeni-li/projet_6] backend
+git clone https://github.com/sibeni-li/projet_6 backend
 cd backend
 ```
 
