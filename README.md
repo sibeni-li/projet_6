@@ -61,20 +61,20 @@ The server will be running at `http://localhost:4000`.
 
 ## Project Structure
 
-backend/ 
-├── controllers/ 
-├── images/ 
-├── middlewares/ 
-├── models/ 
-├── node_modules
+backend/  
+├── controllers/  
+├── images/  
+├── middlewares/  
+├── models/  
+├── node_modules  
 ├── routes/  
-├── .env 
-├── .gitignore 
-├── app.js
-├── package.json 
-├── pnpm-lock.yaml
-├── README.md
-└── server.js
+├── .env  
+├── .gitignore  
+├── app.js  
+├── package.json  
+├── pnpm-lock.yaml  
+├── README.md  
+└── server.js  
 
 ## Scripts
 
