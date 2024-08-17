@@ -28,7 +28,10 @@ pnpm install
 ```bash
 BDDLOGIN= "Your MongoDB atlas identifiant"
 BDDPASSWORD= "Your MongoDB atlas password"
+CLUSTER="Your MongoDB atlas cluster"
+DATABASE="Your MongoDB atlas DB"
 JWT_SECRET_KEY= "Your random token secret"
+PORT= "Your PORT number"
 ```
 
 ## Usage
