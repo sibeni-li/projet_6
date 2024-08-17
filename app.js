@@ -10,7 +10,7 @@ const path = require('path');
 const app = express();
 
 // Connect to MongoDB
-mongoose.connect(`mongodb+srv://${process.env.BDDLOGIN}:${process.env.BDDPASSWORD}@cluster0.tjk7oxw.mongodb.net/vieux-grimoir?retryWrites=true&w=majority&appName=Cluster0` , 
+mongoose.connect(`mongodb+srv://${process.env.BDDLOGIN}:${process.env.BDDPASSWORD}@${process.env.CLUSTER}/${process.env.DATABASE}?retryWrites=true&w=majority&appName=Cluster0` , 
     {   useNewUrlParser: true,
         useUnifiedTopology: true })
     .then(() => console.log('Connexion à MongoDB réussie !'))
